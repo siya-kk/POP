@@ -6,7 +6,7 @@ library(RColorBrewer)
 library(DoubletFinder)
 
 
-##############################filter doublet
+############################## Doublet removal
 N01.data <- Read10X("./N01/outs/filtered_gene_bc_matrices/hg19");
 colnames(x = N01.data) <- paste('N01', colnames(x = N01.data), sep = '-');
 N01 <- CreateSeuratObject(counts = N01.data, min.cells = 5)
@@ -666,10 +666,14 @@ P16_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combi
 
 
 
-##############################PCA
+##############################Perform integration
 anchors <- FindIntegrationAnchors(object.list = list(N01_final,N02_final,N03_final,N04_final,N05_final,P01_final,P02_final,P03_final,P04_final,P05_final,P06_final,P07_final,P08_final,P09_final,P10_final,P11_final,P12_final,P13_final,P14_final,P15_final,P16_final), dims = 1:40)
 combined <- IntegrateData(anchorset = anchors, dims = 1:40)
 DefaultAssay(object = combined) <- "integrated"
+
+
+
+##############################Perform an integrated analysis
 combined.1 <- ScaleData(object = combined, verbose = FALSE)
 combined.2 <- RunPCA(object = combined.1, npcs = 40, verbose = FALSE)
 save(combined.2,file="RunPCA.Robj") 
@@ -680,22 +684,50 @@ dev.off()
 pdf("ElbowPlot.pdf")
 ElbowPlot(combined.2, ndims = 40)
 dev.off()
-
-
-
-
-
-##############################UMAP
 combined.3 <- FindNeighbors(object = combined.2, reduction = "pca", dims = 1:40)
 combined.4 <- FindClusters(combined.3, resolution = 0.5)
 combined.5 <- RunUMAP(object = combined.4, reduction = "pca", dims = 1:40)
 save(combined.5,file="RunUMAP.Robj") 
-pdf("DimPlot.pdf")
-DimPlot(combined.6, reduction = "umap", pt.size = 0.1, label=TRUE)
+pdf("DimPlot_v1.pdf")
+DimPlot(combined.5, reduction = "umap", pt.size = 0.1, label=TRUE)
 dev.off()
 
 
 
+##############################Identify conserved cell type markers
+all.markers <- FindAllMarkers(combined.5, logfc.threshold = 0.25)
+head(all.markers)
 
+##############################Merge & Rename
+combined.6 <- SubsetData(combined.5, ident.use = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22), do.clean = TRUE)
+combined.7 <- RenameIdents(combined.6, 
+'0'='FIB',
+'1'='FIB',
+'2'='FIB',
+'3'='FIB',
+'4'='SMC',
+'5'='EC',
+'6'='SMC',
+'7'='MΦ',
+'8'='MEP',
+'9'='MΦ',
+'10'='FIB',
+'11'='TC',
+'12'='SMC',
+'13'='MΦ',
+'14'='TC',
+'15'='PB',
+'16'='EP',
+'17'='FIB',
+'18'='FIB',
+'19'='LEC',
+'20'='BC',
+'21'='FIB',
+'22'='MAST');
+levels(combined.7)
+pdf("DimPlot_v2.pdf",width=10,height=10)
+DimPlot(combined.7, reduction = "umap", label = FALSE, pt.size = 0.8)
+dev.off()
+save(combined.7,file="RunUMAP_rename.Robj") 
 
 
