@@ -7,16 +7,16 @@ library(DoubletFinder)
 
 
 ############################## Doublet removal
-N01.data <- Read10X("./N01/outs/filtered_gene_bc_matrices/hg19");
-colnames(x = N01.data) <- paste('N01', colnames(x = N01.data), sep = '-');
-N01 <- CreateSeuratObject(counts = N01.data, min.cells = 5)
-N01[["percent.mt"]] <- PercentageFeatureSet(object = N01, pattern = "MT-")
-N01 <- subset(x = N01, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
-N01 <- NormalizeData(object = N01, verbose = FALSE)
-N01 <- FindVariableFeatures(object = N01, selection.method = "vst", nfeatures = 2000)
-N01$sample <- "normal"
-N01$tech <- "N01"
-combined.1 <- ScaleData(object = N01, verbose = FALSE)
+N1.data <- Read10X("./N1/outs/filtered_gene_bc_matrices/hg19");
+colnames(x = N1.data) <- paste('N1', colnames(x = N1.data), sep = '-');
+N1 <- CreateSeuratObject(counts = N1.data, min.cells = 5)
+N1[["percent.mt"]] <- PercentageFeatureSet(object = N1, pattern = "MT-")
+N1 <- subset(x = N1, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
+N1 <- NormalizeData(object = N1, verbose = FALSE)
+N1 <- FindVariableFeatures(object = N1, selection.method = "vst", nfeatures = 2000)
+N1$sample <- "normal"
+N1$tech <- "N1"
+combined.1 <- ScaleData(object = N1, verbose = FALSE)
 combined.2 <- RunPCA(object = combined.1, npcs = 10, verbose = FALSE)
 combined.3 <- FindNeighbors(object = combined.2, reduction = "pca", dims = 1:10)
 combined.4 <- FindClusters(combined.3, resolution = 0.5)
@@ -24,7 +24,7 @@ combined.6 <- RunTSNE(object = combined.4, reduction = "pca", dims = 1:10)
 combined.7 <- paramSweep_v3(combined.6, PCs = 1:10,sct = FALSE)
 combined.8 <- summarizeSweep(combined.7, GT = FALSE)
 combined.9 <- find.pK(combined.8)
-pdf("pK_N01.pdf")
+pdf("pK_N1.pdf")
 plot(combined.9$pK, combined.9$BCmetric, type='b')
 dev.off()
 annotations <- combined.6@meta.data$seurat_clusters
@@ -33,20 +33,20 @@ nExp_poi <- round(0.0253*length(combined.6@active.ident))
 nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
 combined.10 <- doubletFinder_v3(combined.6, PCs = 1:10, pN = 0.25, pK = 0.21, nExp = nExp_poi, reuse.pANN = FALSE)
 head(combined.10@meta.data)
-N01_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.21_76=="Singlet",]), do.clean=T)
+N1_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.21_76=="Singlet",]), do.clean=T)
 
 
 
-N02.data <- Read10X("./N0/outs/filtered_gene_bc_matrices/hg19");
-colnames(x = N02.data) <- paste('N02', colnames(x = N02.data), sep = '-');
-N02 <- CreateSeuratObject(counts = N02.data, min.cells = 5)
-N02[["percent.mt"]] <- PercentageFeatureSet(object = N02, pattern = "MT-")
-N02 <- subset(x = N02, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
-N02 <- NormalizeData(object = N02, verbose = FALSE)
-N02 <- FindVariableFeatures(object = N02, selection.method = "vst", nfeatures = 2000)
-N02$sample <- "normal"
-N02$tech <- "N02"
-combined.1 <- ScaleData(object = N02, verbose = FALSE)
+N2.data <- Read10X("./N2/outs/filtered_gene_bc_matrices/hg19");
+colnames(x = N2.data) <- paste('N2', colnames(x = N2.data), sep = '-');
+N2 <- CreateSeuratObject(counts = N2.data, min.cells = 5)
+N2[["percent.mt"]] <- PercentageFeatureSet(object = N2, pattern = "MT-")
+N2 <- subset(x = N2, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
+N2 <- NormalizeData(object = N2, verbose = FALSE)
+N2 <- FindVariableFeatures(object = N2, selection.method = "vst", nfeatures = 2000)
+N2$sample <- "normal"
+N2$tech <- "N2"
+combined.1 <- ScaleData(object = N2, verbose = FALSE)
 combined.2 <- RunPCA(object = combined.1, npcs = 10, verbose = FALSE)
 combined.3 <- FindNeighbors(object = combined.2, reduction = "pca", dims = 1:10)
 combined.4 <- FindClusters(combined.3, resolution = 0.5)
@@ -54,7 +54,7 @@ combined.6 <- RunTSNE(object = combined.4, reduction = "pca", dims = 1:10)
 combined.7 <- paramSweep_v3(combined.6, PCs = 1:10,sct = FALSE)
 combined.8 <- summarizeSweep(combined.7, GT = FALSE)
 combined.9 <- find.pK(combined.8)
-pdf("pK_N02.pdf")
+pdf("pK_N2.pdf")
 plot(combined.9$pK, combined.9$BCmetric, type='b')
 dev.off()
 annotations <- combined.6@meta.data$seurat_clusters
@@ -63,20 +63,20 @@ nExp_poi <- round(0.0315*length(combined.6@active.ident))
 nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
 combined.10 <- doubletFinder_v3(combined.6, PCs = 1:10, pN = 0.25, pK = 0.06, nExp = nExp_poi, reuse.pANN = FALSE)
 head(combined.7P@meta.data)
-N02_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.06_120=="Singlet",]), do.clean=T)
+N2_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.06_120=="Singlet",]), do.clean=T)
 
 
 
-N03.data <- Read10X("./N03/outs/filtered_gene_bc_matrices/hg19");
-colnames(x = N03.data) <- paste('N03', colnames(x = N03.data), sep = '-');
-N03 <- CreateSeuratObject(counts = N03.data, min.cells = 5)
-N03[["percent.mt"]] <- PercentageFeatureSet(object = N03, pattern = "MT-")
-N03 <- subset(x = N03, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
-N03 <- NormalizeData(object = N03, verbose = FALSE)
-N03 <- FindVariableFeatures(object = N03, selection.method = "vst", nfeatures = 2000)
-N03$sample <- "normal"
-N03$tech <- "N03"
-combined.1 <- ScaleData(object = N03, verbose = FALSE)
+N3.data <- Read10X("./N3/outs/filtered_gene_bc_matrices/hg19");
+colnames(x = N3.data) <- paste('N3', colnames(x = N3.data), sep = '-');
+N3 <- CreateSeuratObject(counts = N3.data, min.cells = 5)
+N3[["percent.mt"]] <- PercentageFeatureSet(object = N3, pattern = "MT-")
+N3 <- subset(x = N3, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
+N3 <- NormalizeData(object = N3, verbose = FALSE)
+N3 <- FindVariableFeatures(object = N3, selection.method = "vst", nfeatures = 2000)
+N3$sample <- "normal"
+N3$tech <- "N3"
+combined.1 <- ScaleData(object = N3, verbose = FALSE)
 combined.2 <- RunPCA(object = combined.1, npcs = 10, verbose = FALSE)
 combined.3 <- FindNeighbors(object = combined.2, reduction = "pca", dims = 1:10)
 combined.4 <- FindClusters(combined.3, resolution = 0.5)
@@ -84,7 +84,7 @@ combined.6 <- RunTSNE(object = combined.4, reduction = "pca", dims = 1:10)
 combined.7 <- paramSweep_v3(combined.6, PCs = 1:10,sct = FALSE)
 combined.8 <- summarizeSweep(combined.7, GT = FALSE)
 combined.9 <- find.pK(combined.8)
-pdf("pK_N03.pdf")
+pdf("pK_N3.pdf")
 plot(combined.9$pK, combined.9$BCmetric, type='b')
 dev.off()
 annotations <- combined.6@meta.data$seurat_clusters
@@ -93,21 +93,21 @@ nExp_poi <- round(0.0257*length(combined.6@active.ident))
 nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
 combined.10 <- doubletFinder_v3(combined.6, PCs = 1:10, pN = 0.25, pK = 0.03, nExp = nExp_poi, reuse.pANN = FALSE)
 head(combined.10@meta.data)
-N03_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.03_73=="Singlet",]), do.clean=T)
+N3_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.03_73=="Singlet",]), do.clean=T)
 
 
 
 
-N04.data <- Read10X("./N04/outs/filtered_gene_bc_matrices/hg19");
-colnames(x = N04.data) <- paste('N04', colnames(x = N04.data), sep = '-');
-N04 <- CreateSeuratObject(counts = N04.data, min.cells = 5)
-N04[["percent.mt"]] <- PercentageFeatureSet(object = N04, pattern = "MT-")
-N04 <- subset(x = N04, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
-N04 <- NormalizeData(object = N04, verbose = FALSE)
-N04 <- FindVariableFeatures(object = N04, selection.method = "vst", nfeatures = 2000)
-N04$sample <- "normal"
-N04$tech <- "N04"
-combined.1 <- ScaleData(object = N04, verbose = FALSE)
+N4.data <- Read10X("./N4/outs/filtered_gene_bc_matrices/hg19");
+colnames(x = N4.data) <- paste('N4', colnames(x = N4.data), sep = '-');
+N4 <- CreateSeuratObject(counts = N4.data, min.cells = 5)
+N4[["percent.mt"]] <- PercentageFeatureSet(object = N4, pattern = "MT-")
+N4 <- subset(x = N4, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
+N4 <- NormalizeData(object = N4, verbose = FALSE)
+N4 <- FindVariableFeatures(object = N4, selection.method = "vst", nfeatures = 2000)
+N4$sample <- "normal"
+N4$tech <- "N4"
+combined.1 <- ScaleData(object = N4, verbose = FALSE)
 combined.2 <- RunPCA(object = combined.1, npcs = 10, verbose = FALSE)
 combined.3 <- FindNeighbors(object = combined.2, reduction = "pca", dims = 1:10)
 combined.4 <- FindClusters(combined.3, resolution = 0.5)
@@ -115,7 +115,7 @@ combined.6 <- RunTSNE(object = combined.4, reduction = "pca", dims = 1:10)
 combined.7 <- paramSweep_v3(combined.6, PCs = 1:10,sct = FALSE)
 combined.8 <- summarizeSweep(combined.7, GT = FALSE)
 combined.9 <- find.pK(combined.8)
-pdf("pK_N04.pdf")
+pdf("pK_N4.pdf")
 plot(combined.9$pK, combined.9$BCmetric, type='b')
 dev.off()
 annotations <- combined.6@meta.data$seurat_clusters
@@ -124,23 +124,23 @@ nExp_poi <- round(0.0184*length(combined.6@active.ident))
 nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
 combined.10 <- doubletFinder_v3(combined.6, PCs = 1:10, pN = 0.25, pK = 0.06, nExp = nExp_poi, reuse.pANN = FALSE)
 head(combined.10@meta.data)
-N04_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.06_43=="Singlet",]), do.clean=T)
-dim(N04_final)
+N4_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.06_43=="Singlet",]), do.clean=T)
+dim(N4_final)
 
 
 
 
 
-N05.data <- Read10X("./N05/outs/filtered_gene_bc_matrices/hg19");
-colnames(x = N05.data) <- paste('N05', colnames(x = N05.data), sep = '-');
-N05 <- CreateSeuratObject(counts = N05.data, min.cells = 5)
-N05[["percent.mt"]] <- PercentageFeatureSet(object = N05, pattern = "MT-")
-N05 <- subset(x = N05, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
-N05 <- NormalizeData(object = N05, verbose = FALSE)
-N05 <- FindVariableFeatures(object = N05, selection.method = "vst", nfeatures = 2000)
-N05$sample <- "normal"
-N05$tech <- "N05"
-combined.1 <- ScaleData(object = N05, verbose = FALSE)
+N5.data <- Read10X("./N5/outs/filtered_gene_bc_matrices/hg19");
+colnames(x = N5.data) <- paste('N5', colnames(x = N5.data), sep = '-');
+N5 <- CreateSeuratObject(counts = N5.data, min.cells = 5)
+N5[["percent.mt"]] <- PercentageFeatureSet(object = N5, pattern = "MT-")
+N5 <- subset(x = N5, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
+N5 <- NormalizeData(object = N5, verbose = FALSE)
+N5 <- FindVariableFeatures(object = N5, selection.method = "vst", nfeatures = 2000)
+N5$sample <- "normal"
+N5$tech <- "N5"
+combined.1 <- ScaleData(object = N5, verbose = FALSE)
 combined.2 <- RunPCA(object = combined.1, npcs = 10, verbose = FALSE)
 combined.3 <- FindNeighbors(object = combined.2, reduction = "pca", dims = 1:10)
 combined.4 <- FindClusters(combined.3, resolution = 0.5)
@@ -148,7 +148,7 @@ combined.6 <- RunTSNE(object = combined.4, reduction = "pca", dims = 1:10)
 combined.7 <- paramSweep_v3(combined.6, PCs = 1:10,sct = FALSE)
 combined.8 <- summarizeSweep(combined.7, GT = FALSE)
 combined.9 <- find.pK(combined.8)
-pdf("pK_N05.pdf")
+pdf("pK_N5.pdf")
 plot(combined.9$pK, combined.9$BCmetric, type='b')
 dev.off()
 annotations <- combined.6@meta.data$seurat_clusters
@@ -157,24 +157,24 @@ nExp_poi <- round(0.0331*length(combined.6@active.ident))
 nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
 combined.10 <- doubletFinder_v3(combined.6, PCs = 1:10, pN = 0.25, pK = 0.06, nExp = nExp_poi, reuse.pANN = FALSE)
 head(combined.10@meta.data)
-N05_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.06_135=="Singlet",]), do.clean=T)
+N5_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.06_135=="Singlet",]), do.clean=T)
 dim(combined.10)
-dim(N05_final)
+dim(N5_final)
 
 
 
 
 
-P01.data <- Read10X("./P01/outs/filtered_gene_bc_matrices/hg19")
-colnames(x = P01.data) <- paste('P01', colnames(x = P01.data), sep = '-');
-P01 <- CreateSeuratObject(counts = P01.data, min.cells = 5)
-P01[["percent.mt"]] <- PercentageFeatureSet(object = P01, pattern = "MT-")
-P01 <- subset(x = P01, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
-P01 <- NormalizeData(object = P01, verbose = FALSE)
-P01 <- FindVariableFeatures(object = P01, selection.method = "vst", nfeatures = 2000)
-P01$sample <- "POP"
-P01$tech <- "P01"
-combined.1 <- ScaleData(object = P01, verbose = FALSE)
+P1.data <- Read10X("./P1/outs/filtered_gene_bc_matrices/hg19")
+colnames(x = P1.data) <- paste('P1', colnames(x = P1.data), sep = '-');
+P1 <- CreateSeuratObject(counts = P1.data, min.cells = 5)
+P1[["percent.mt"]] <- PercentageFeatureSet(object = P1, pattern = "MT-")
+P1 <- subset(x = P1, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
+P1 <- NormalizeData(object = P1, verbose = FALSE)
+P1 <- FindVariableFeatures(object = P1, selection.method = "vst", nfeatures = 2000)
+P1$sample <- "POP"
+P1$tech <- "P1"
+combined.1 <- ScaleData(object = P1, verbose = FALSE)
 combined.2 <- RunPCA(object = combined.1, npcs = 10, verbose = FALSE)
 combined.3 <- FindNeighbors(object = combined.2, reduction = "pca", dims = 1:10)
 combined.4 <- FindClusters(combined.3, resolution = 0.5)
@@ -182,7 +182,7 @@ combined.6 <- RunTSNE(object = combined.4, reduction = "pca", dims = 1:10)
 combined.7 <- paramSweep_v3(combined.6, PCs = 1:10,sct = FALSE)
 combined.8 <- summarizeSweep(combined.7, GT = FALSE)
 combined.9 <- find.pK(combined.8)
-pdf("pK_P01.pdf")
+pdf("pK_P1.pdf")
 plot(combined.9$pK, combined.9$BCmetric, type='b')
 dev.off()
 annotations <- combined.6@meta.data$seurat_clusters
@@ -191,21 +191,21 @@ nExp_poi <- round(0.0316*length(combined.6@active.ident))
 nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
 combined.10 <- doubletFinder_v3(combined.6, PCs = 1:10, pN = 0.25, pK = 0.08, nExp = nExp_poi, reuse.pANN = FALSE)
 head(combined.10@meta.data)
-P01_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.08_121=="Singlet",]), do.clean=T)
+P1_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.08_121=="Singlet",]), do.clean=T)
 
 
 
 
-P02.data <- Read10X("./P02/outs/filtered_gene_bc_matrices/hg19")
-colnames(x = P02.data) <- paste('P02', colnames(x = P02.data), sep = '-');
-P02 <- CreateSeuratObject(counts = P02.data, min.cells = 5)
-P02[["percent.mt"]] <- PercentageFeatureSet(object = P02, pattern = "MT-")
-P02 <- subset(x = P02, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
-P02 <- NormalizeData(object = P02, verbose = FALSE)
-P02 <- FindVariableFeatures(object = P02, selection.method = "vst", nfeatures = 2000)
-P02$sample <- "POP"
-P02$tech <- "P02"
-combined.1 <- ScaleData(object = P02, verbose = FALSE)
+P2.data <- Read10X("./P2/outs/filtered_gene_bc_matrices/hg19")
+colnames(x = P2.data) <- paste('P2', colnames(x = P2.data), sep = '-');
+P2 <- CreateSeuratObject(counts = P2.data, min.cells = 5)
+P2[["percent.mt"]] <- PercentageFeatureSet(object = P2, pattern = "MT-")
+P2 <- subset(x = P2, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
+P2 <- NormalizeData(object = P2, verbose = FALSE)
+P2 <- FindVariableFeatures(object = P2, selection.method = "vst", nfeatures = 2000)
+P2$sample <- "POP"
+P2$tech <- "P2"
+combined.1 <- ScaleData(object = P2, verbose = FALSE)
 combined.2 <- RunPCA(object = combined.1, npcs = 10, verbose = FALSE)
 combined.3 <- FindNeighbors(object = combined.2, reduction = "pca", dims = 1:10)
 combined.4 <- FindClusters(combined.3, resolution = 0.5)
@@ -213,7 +213,7 @@ combined.6 <- RunTSNE(object = combined.4, reduction = "pca", dims = 1:10)
 combined.7 <- paramSweep_v3(combined.6, PCs = 1:10,sct = FALSE)
 combined.8 <- summarizeSweep(combined.7, GT = FALSE)
 combined.9 <- find.pK(combined.8)
-pdf("pK_P02.pdf")
+pdf("pK_P2.pdf")
 plot(combined.9$pK, combined.9$BCmetric, type='b')
 dev.off()
 annotations <- combined.6@meta.data$seurat_clusters
@@ -222,21 +222,21 @@ nExp_poi <- round(0.0257*length(combined.6@active.ident))
 nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
 combined.10 <- doubletFinder_v3(combined.6, PCs = 1:10, pN = 0.25, pK = 0.01, nExp = nExp_poi, reuse.pANN = FALSE)
 head(combined.10@meta.data)
-P02_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.01_79=="Singlet",]), do.clean=T)
+P2_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.01_79=="Singlet",]), do.clean=T)
 
 
 
 
-P03.data <- Read10X("./P03/outs/filtered_gene_bc_matrices/hg19")
-colnames(x = P03.data) <- paste('P03', colnames(x = P03.data), sep = '-');
-P03 <- CreateSeuratObject(counts = P03.data, min.cells = 5)
-P03[["percent.mt"]] <- PercentageFeatureSet(object = P03, pattern = "MT-")
-P03 <- subset(x = P03, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
-P03 <- NormalizeData(object = P03, verbose = FALSE)
-P03 <- FindVariableFeatures(object = P03, selection.method = "vst", nfeatures = 2000)
-P03$sample <- "POP"
-P03$tech <- "P03"
-combined.1 <- ScaleData(object = P03, verbose = FALSE)
+P3.data <- Read10X("./P3/outs/filtered_gene_bc_matrices/hg19")
+colnames(x = P3.data) <- paste('P3', colnames(x = P3.data), sep = '-');
+P3 <- CreateSeuratObject(counts = P3.data, min.cells = 5)
+P3[["percent.mt"]] <- PercentageFeatureSet(object = P3, pattern = "MT-")
+P3 <- subset(x = P3, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
+P3 <- NormalizeData(object = P3, verbose = FALSE)
+P3 <- FindVariableFeatures(object = P3, selection.method = "vst", nfeatures = 2000)
+P3$sample <- "POP"
+P3$tech <- "P3"
+combined.1 <- ScaleData(object = P3, verbose = FALSE)
 combined.2 <- RunPCA(object = combined.1, npcs = 10, verbose = FALSE)
 combined.3 <- FindNeighbors(object = combined.2, reduction = "pca", dims = 1:10)
 combined.4 <- FindClusters(combined.3, resolution = 0.5)
@@ -244,7 +244,7 @@ combined.6 <- RunTSNE(object = combined.4, reduction = "pca", dims = 1:10)
 combined.7 <- paramSweep_v3(combined.6, PCs = 1:10,sct = FALSE)
 combined.8 <- summarizeSweep(combined.7, GT = FALSE)
 combined.9 <- find.pK(combined.8)
-pdf("pK_P03.pdf")
+pdf("pK_P3.pdf")
 plot(combined.9$pK, combined.9$BCmetric, type='b')
 dev.off()
 annotations <- combined.6@meta.data$seurat_clusters
@@ -253,22 +253,22 @@ nExp_poi <- round(0.0153*length(combined.6@active.ident))
 nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
 combined.10 <- doubletFinder_v3(combined.6, PCs = 1:10, pN = 0.25, pK = 0.04, nExp = nExp_poi, reuse.pANN = FALSE)
 head(combined.10@meta.data)
-P03_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.04_23=="Singlet",]), do.clean=T)
+P3_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.04_23=="Singlet",]), do.clean=T)
 
 
 
 
 
-P04.data <- Read10X("./P04/outs/filtered_gene_bc_matrices/hg19")
-colnames(x = P04.data) <- paste('P04', colnames(x = P04.data), sep = '-');
-P04 <- CreateSeuratObject(counts = P04.data, min.cells = 5)
-P04[["percent.mt"]] <- PercentageFeatureSet(object = P04, pattern = "MT-")
-P04 <- subset(x = P04, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
-P04 <- NormalizeData(object = P04, verbose = FALSE)
-P04 <- FindVariableFeatures(object = P04, selection.method = "vst", nfeatures = 2000)
-P04$sample <- "POP"
-P04$tech <- "P04"
-combined.1 <- ScaleData(object = P04, verbose = FALSE)
+P4.data <- Read10X("./P4/outs/filtered_gene_bc_matrices/hg19")
+colnames(x = P4.data) <- paste('P4', colnames(x = P4.data), sep = '-');
+P4 <- CreateSeuratObject(counts = P4.data, min.cells = 5)
+P4[["percent.mt"]] <- PercentageFeatureSet(object = P4, pattern = "MT-")
+P4 <- subset(x = P4, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
+P4 <- NormalizeData(object = P4, verbose = FALSE)
+P4 <- FindVariableFeatures(object = P4, selection.method = "vst", nfeatures = 2000)
+P4$sample <- "POP"
+P4$tech <- "P4"
+combined.1 <- ScaleData(object = P4, verbose = FALSE)
 combined.2 <- RunPCA(object = combined.1, npcs = 10, verbose = FALSE)
 combined.3 <- FindNeighbors(object = combined.2, reduction = "pca", dims = 1:10)
 combined.4 <- FindClusters(combined.3, resolution = 0.5)
@@ -276,7 +276,7 @@ combined.6 <- RunTSNE(object = combined.4, reduction = "pca", dims = 1:10)
 combined.7 <- paramSweep_v3(combined.6, PCs = 1:10,sct = FALSE)
 combined.8 <- summarizeSweep(combined.7, GT = FALSE)
 combined.9 <- find.pK(combined.8)
-pdf("pK_P04.pdf")
+pdf("pK_P4.pdf")
 plot(combined.9$pK, combined.9$BCmetric, type='b')
 dev.off()
 annotations <- combined.6@meta.data$seurat_clusters
@@ -285,20 +285,20 @@ nExp_poi <- round(0.0433*length(combined.6@active.ident))
 nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
 combined.10 <- doubletFinder_v3(combined.6, PCs = 1:10, pN = 0.25, pK = 0.04, nExp = nExp_poi, reuse.pANN = FALSE)
 head(combined.10@meta.data)
-P04_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.04_229=="Singlet",]), do.clean=T)
+P4_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.04_229=="Singlet",]), do.clean=T)
 
 
 
-P05.data <- Read10X("./P05/outs/filtered_gene_bc_matrices/hg19")
-colnames(x = P05.data) <- paste('P05', colnames(x = P05.data), sep = '-');
-P05 <- CreateSeuratObject(counts = P05.data, min.cells = 5)
-P05[["percent.mt"]] <- PercentageFeatureSet(object = P05, pattern = "MT-")
-P05 <- subset(x = P05, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
-P05 <- NormalizeData(object = P05, verbose = FALSE)
-P05 <- FindVariableFeatures(object = P05, selection.method = "vst", nfeatures = 2000)
-P05$sample <- "POP"
-P05$tech <- "P05"
-combined.1 <- ScaleData(object = P05, verbose = FALSE)
+P5.data <- Read10X("./P5/outs/filtered_gene_bc_matrices/hg19")
+colnames(x = P5.data) <- paste('P5', colnames(x = P5.data), sep = '-');
+P5 <- CreateSeuratObject(counts = P5.data, min.cells = 5)
+P5[["percent.mt"]] <- PercentageFeatureSet(object = P5, pattern = "MT-")
+P5 <- subset(x = P5, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
+P5 <- NormalizeData(object = P5, verbose = FALSE)
+P5 <- FindVariableFeatures(object = P5, selection.method = "vst", nfeatures = 2000)
+P5$sample <- "POP"
+P5$tech <- "P5"
+combined.1 <- ScaleData(object = P5, verbose = FALSE)
 combined.2 <- RunPCA(object = combined.1, npcs = 10, verbose = FALSE)
 combined.3 <- FindNeighbors(object = combined.2, reduction = "pca", dims = 1:10)
 combined.4 <- FindClusters(combined.3, resolution = 0.5)
@@ -306,7 +306,7 @@ combined.6 <- RunTSNE(object = combined.4, reduction = "pca", dims = 1:10)
 combined.7 <- paramSweep_v3(combined.6, PCs = 1:10,sct = FALSE)
 combined.8 <- summarizeSweep(combined.7, GT = FALSE)
 combined.9 <- find.pK(combined.8)
-pdf("pK_P05.pdf")
+pdf("pK_P5.pdf")
 plot(combined.9$pK, combined.9$BCmetric, type='b')
 dev.off()
 annotations <- combined.6@meta.data$seurat_clusters
@@ -315,21 +315,21 @@ nExp_poi <- round(0.0315*length(combined.6@active.ident))
 nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
 combined.10 <- doubletFinder_v3(combined.6, PCs = 1:10, pN = 0.25, pK = 0.11, nExp = nExp_poi, reuse.pANN = FALSE)
 head(combined.10@meta.data)
-P05_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.11_122=="Singlet",]), do.clean=T)
+P5_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.11_122=="Singlet",]), do.clean=T)
 
 
 
 
-P06.data <- Read10X("./P06/outs/filtered_gene_bc_matrices/hg19")
-colnames(x = P06.data) <- paste('P06', colnames(x = P06.data), sep = '-');
-P06 <- CreateSeuratObject(counts = P06.data, min.cells = 5)
-P06[["percent.mt"]] <- PercentageFeatureSet(object = P06, pattern = "MT-")
-P06 <- subset(x = P06, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
-P06 <- NormalizeData(object = P06, verbose = FALSE)
-P06 <- FindVariableFeatures(object = P06, selection.method = "vst", nfeatures = 2000)
-P06$sample <- "POP"
-P06$tech <- "P06"
-combined.1 <- ScaleData(object = P06, verbose = FALSE)
+P6.data <- Read10X("./P6/outs/filtered_gene_bc_matrices/hg19")
+colnames(x = P6.data) <- paste('P6', colnames(x = P6.data), sep = '-');
+P6 <- CreateSeuratObject(counts = P6.data, min.cells = 5)
+P6[["percent.mt"]] <- PercentageFeatureSet(object = P6, pattern = "MT-")
+P6 <- subset(x = P6, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
+P6 <- NormalizeData(object = P6, verbose = FALSE)
+P6 <- FindVariableFeatures(object = P6, selection.method = "vst", nfeatures = 2000)
+P6$sample <- "POP"
+P6$tech <- "P6"
+combined.1 <- ScaleData(object = P6, verbose = FALSE)
 combined.2 <- RunPCA(object = combined.1, npcs = 10, verbose = FALSE)
 combined.3 <- FindNeighbors(object = combined.2, reduction = "pca", dims = 1:10)
 combined.4 <- FindClusters(combined.3, resolution = 0.5)
@@ -337,7 +337,7 @@ combined.6 <- RunTSNE(object = combined.4, reduction = "pca", dims = 1:10)
 combined.7 <- paramSweep_v3(combined.6, PCs = 1:10,sct = FALSE)
 combined.8 <- summarizeSweep(combined.7, GT = FALSE)
 combined.9 <- find.pK(combined.8)
-pdf("pK_P06.pdf")
+pdf("pK_P6.pdf")
 plot(combined.9$pK, combined.9$BCmetric, type='b')
 dev.off()
 annotations <- combined.6@meta.data$seurat_clusters
@@ -346,21 +346,21 @@ nExp_poi <- round(0.0274*length(combined.6@active.ident))
 nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
 combined.10 <- doubletFinder_v3(combined.6, PCs = 1:10, pN = 0.25, pK = 0.11, nExp = nExp_poi, reuse.pANN = FALSE)
 head(combined.10@meta.data)
-P06_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.11_122=="Singlet",]), do.clean=T)
+P6_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.11_122=="Singlet",]), do.clean=T)
 
 
 
 
-P07.data <- Read10X("./P07/outs/filtered_gene_bc_matrices/hg19")
-colnames(x = P07.data) <- paste('P07', colnames(x = P07.data), sep = '-');
-P07 <- CreateSeuratObject(counts = P07.data, min.cells = 5)
-P07[["percent.mt"]] <- PercentageFeatureSet(object = P07, pattern = "MT-")
-P07 <- subset(x = P07, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
-P07 <- NormalizeData(object = P07, verbose = FALSE)
-P07 <- FindVariableFeatures(object = P07, selection.method = "vst", nfeatures = 2000)
-P07$sample <- "POP"
-P07$tech <- "P07"
-combined.1 <- ScaleData(object = P07, verbose = FALSE)
+P7.data <- Read10X("./P7/outs/filtered_gene_bc_matrices/hg19")
+colnames(x = P7.data) <- paste('P7', colnames(x = P7.data), sep = '-');
+P7 <- CreateSeuratObject(counts = P7.data, min.cells = 5)
+P7[["percent.mt"]] <- PercentageFeatureSet(object = P7, pattern = "MT-")
+P7 <- subset(x = P7, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
+P7 <- NormalizeData(object = P7, verbose = FALSE)
+P7 <- FindVariableFeatures(object = P7, selection.method = "vst", nfeatures = 2000)
+P7$sample <- "POP"
+P7$tech <- "P7"
+combined.1 <- ScaleData(object = P7, verbose = FALSE)
 combined.2 <- RunPCA(object = combined.1, npcs = 10, verbose = FALSE)
 combined.3 <- FindNeighbors(object = combined.2, reduction = "pca", dims = 1:10)
 combined.4 <- FindClusters(combined.3, resolution = 0.5)
@@ -368,7 +368,7 @@ combined.6 <- RunTSNE(object = combined.4, reduction = "pca", dims = 1:10)
 combined.7 <- paramSweep_v3(combined.6, PCs = 1:10,sct = FALSE)
 combined.8 <- summarizeSweep(combined.7, GT = FALSE)
 combined.9 <- find.pK(combined.8)
-pdf("pK_P07.pdf")
+pdf("pK_P7.pdf")
 plot(combined.9$pK, combined.9$BCmetric, type='b')
 dev.off()
 annotations <- combined.6@meta.data$seurat_clusters
@@ -377,22 +377,22 @@ nExp_poi <- round(0.0402*length(combined.6@active.ident))
 nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
 combined.10 <- doubletFinder_v3(combined.6, PCs = 1:10, pN = 0.25, pK = 0.01, nExp = nExp_poi, reuse.pANN = FALSE)
 head(combined.10@meta.data)
-P07_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.01_88=="Singlet",]), do.clean=T)
+P7_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.01_88=="Singlet",]), do.clean=T)
 
 
 
 
 
-P08.data <- Read10X("./P08/outs/filtered_gene_bc_matrices/hg19")
-colnames(x = P08.data) <- paste('P08', colnames(x = P08.data), sep = '-');
-P08 <- CreateSeuratObject(counts = P08.data, min.cells = 5)
-P08[["percent.mt"]] <- PercentageFeatureSet(object = P08, pattern = "MT-")
-P08 <- subset(x = P08, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
-P08 <- NormalizeData(object = P08, verbose = FALSE)
-P08 <- FindVariableFeatures(object = P08, selection.method = "vst", nfeatures = 2000)
-P08$sample <- "POP"
-P08$tech <- "P08"
-combined.1 <- ScaleData(object = P08, verbose = FALSE)
+P8.data <- Read10X("./P8/outs/filtered_gene_bc_matrices/hg19")
+colnames(x = P8.data) <- paste('P8', colnames(x = P8.data), sep = '-');
+P8 <- CreateSeuratObject(counts = P8.data, min.cells = 5)
+P8[["percent.mt"]] <- PercentageFeatureSet(object = P8, pattern = "MT-")
+P8 <- subset(x = P8, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
+P8 <- NormalizeData(object = P8, verbose = FALSE)
+P8 <- FindVariableFeatures(object = P8, selection.method = "vst", nfeatures = 2000)
+P8$sample <- "POP"
+P8$tech <- "P8"
+combined.1 <- ScaleData(object = P8, verbose = FALSE)
 combined.2 <- RunPCA(object = combined.1, npcs = 10, verbose = FALSE)
 combined.3 <- FindNeighbors(object = combined.2, reduction = "pca", dims = 1:10)
 combined.4 <- FindClusters(combined.3, resolution = 0.5)
@@ -400,7 +400,7 @@ combined.6 <- RunTSNE(object = combined.4, reduction = "pca", dims = 1:10)
 combined.7 <- paramSweep_v3(combined.6, PCs = 1:10,sct = FALSE)
 combined.8 <- summarizeSweep(combined.7, GT = FALSE)
 combined.9 <- find.pK(combined.8)
-pdf("pK_P08.pdf")
+pdf("pK_P8.pdf")
 plot(combined.9$pK, combined.9$BCmetric, type='b')
 dev.off()
 annotations <- combined.6@meta.data$seurat_clusters
@@ -409,21 +409,21 @@ nExp_poi <- round(0.0248*length(combined.6@active.ident))
 nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
 combined.10 <- doubletFinder_v3(combined.6, PCs = 1:10, pN = 0.25, pK = 0.1, nExp = nExp_poi, reuse.pANN = FALSE)
 head(combined.10@meta.data)
-P08_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.1_184=="Singlet",]), do.clean=T)
+P8_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.1_184=="Singlet",]), do.clean=T)
 
 
 
 
-P09.data <- Read10X("./P09/outs/filtered_gene_bc_matrices/hg19")
-colnames(x = P09.data) <- paste('P09', colnames(x = P09.data), sep = '-');
-P09 <- CreateSeuratObject(counts = P09.data, min.cells = 5)
-P09[["percent.mt"]] <- PercentageFeatureSet(object = P09, pattern = "MT-")
-P09 <- subset(x = P09, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
-P09 <- NormalizeData(object = P09, verbose = FALSE)
-P09 <- FindVariableFeatures(object = P09, selection.method = "vst", nfeatures = 2000)
-P09$sample <- "POP"
-P09$tech <- "P09"
-combined.1 <- ScaleData(object = P09, verbose = FALSE)
+P9.data <- Read10X("./P9/outs/filtered_gene_bc_matrices/hg19")
+colnames(x = P9.data) <- paste('P9', colnames(x = P9.data), sep = '-');
+P9 <- CreateSeuratObject(counts = P9.data, min.cells = 5)
+P9[["percent.mt"]] <- PercentageFeatureSet(object = P9, pattern = "MT-")
+P9 <- subset(x = P9, subset = nFeature_RNA > 500 & nFeature_RNA < 3500 & percent.mt < 10)
+P9 <- NormalizeData(object = P9, verbose = FALSE)
+P9 <- FindVariableFeatures(object = P9, selection.method = "vst", nfeatures = 2000)
+P9$sample <- "POP"
+P9$tech <- "P9"
+combined.1 <- ScaleData(object = P9, verbose = FALSE)
 combined.2 <- RunPCA(object = combined.1, npcs = 10, verbose = FALSE)
 combined.3 <- FindNeighbors(object = combined.2, reduction = "pca", dims = 1:10)
 combined.4 <- FindClusters(combined.3, resolution = 0.5)
@@ -431,7 +431,7 @@ combined.6 <- RunTSNE(object = combined.4, reduction = "pca", dims = 1:10)
 combined.7 <- paramSweep_v3(combined.6, PCs = 1:10,sct = FALSE)
 combined.8 <- summarizeSweep(combined.7, GT = FALSE)
 combined.9 <- find.pK(combined.8)
-pdf("pK_P09.pdf")
+pdf("pK_P9.pdf")
 plot(combined.9$pK, combined.9$BCmetric, type='b')
 dev.off()
 annotations <- combined.6@meta.data$seurat_clusters
@@ -440,7 +440,7 @@ nExp_poi <- round(0.0355*length(combined.6@active.ident))
 nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
 combined.10 <- doubletFinder_v3(combined.6, PCs = 1:10, pN = 0.25, pK = 0.02, nExp = nExp_poi, reuse.pANN = FALSE)
 head(combined.10@meta.data)
-P09_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.02_74=="Singlet",]), do.clean=T)
+P9_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combined.10@meta.data$DF.classifications_0.25_0.02_74=="Singlet",]), do.clean=T)
 
 
 
@@ -667,7 +667,7 @@ P16_final <- SubsetData(combined.10, cells= rownames(combined.10@meta.data[combi
 
 
 ##############################Perform integration
-anchors <- FindIntegrationAnchors(object.list = list(N01_final,N02_final,N03_final,N04_final,N05_final,P01_final,P02_final,P03_final,P04_final,P05_final,P06_final,P07_final,P08_final,P09_final,P10_final,P11_final,P12_final,P13_final,P14_final,P15_final,P16_final), dims = 1:40)
+anchors <- FindIntegrationAnchors(object.list = list(N1_final,N2_final,N3_final,N4_final,N5_final,P1_final,P2_final,P3_final,P4_final,P5_final,P6_final,P7_final,P8_final,P9_final,P10_final,P11_final,P12_final,P13_final,P14_final,P15_final,P16_final), dims = 1:40)
 combined <- IntegrateData(anchorset = anchors, dims = 1:40)
 DefaultAssay(object = combined) <- "integrated"
 
